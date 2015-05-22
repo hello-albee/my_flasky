@@ -1,0 +1,12 @@
+<p>{{ user.username }},你好：</p>
+<p>感谢注册<b>牛斯狗评论</b>！</p>
+<p>激活账户请点击以下链接: <a href="{{ url_for('auth.confirm', token=token, _external=True) }}">激活</a>.</p>
+<p>或复制以下地址到浏览器打开:</p>
+<p>{{ url_for('auth.confirm', token=token, _external=True) }}</p>
+<p>如果你没有申请注册,请忽略此邮件。</p>
+<p>请勿回复此邮件！</p>
+<hr />
+<p><small>
+牛斯狗评论
+</small></p>
+

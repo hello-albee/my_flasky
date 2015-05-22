@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}登陆 - 牛斯狗评论{% endblock title%}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>登录</h1>
+</div>
+<div class="col-md-4">
+    {{ wtf.quick_form(form) }}
+    <br />
+    <p>忘记密码？<a href="{{ url_for('auth.password_reset_request') }}">单击此处重置密码</a>.</p>
+    <p>新用户吗？<a href="{{ url_for('auth.register') }}">单击此处注册</a>.</p>
+</div>
+{% endblock page_content%}

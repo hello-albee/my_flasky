@@ -1,0 +1,7 @@
+<p>{{ user.username }},你好：</p>
+<p>如需确认新的邮箱 <a href="{{ url_for('auth.change_email', token=token, _external=True) }}">请单击此处</a>.</p>
+<p>或复制以下地址到浏览器打开:</p>
+<p>{{ url_for('auth.change_email', token=token, _external=True) }}</p>
+<p>如果你没有申请修改邮箱请忽略此邮件.</p>
+<p>请勿回复此邮件.</p>
+<p><small>牛斯狗评论</small></p>

@@ -1,0 +1,12 @@
+{{ user.username }}，你好：
+
+确认新邮箱请点击以下链接:
+
+{{ url_for('auth.change_email', token=token, _external=True) }}
+
+如果你没有申请修改邮箱请忽略此邮件.
+
+请勿回复此邮件.
+
+牛斯狗评论
+

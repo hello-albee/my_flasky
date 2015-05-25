@@ -1,6 +1,8 @@
+from datetime import datetime
+import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask import current_app
+from flask import current_app,request
 from flask.ext.login import UserMixin,AnonymousUserMixin
 from . import db,login_manager
 
@@ -53,16 +55,26 @@ class User(UserMixin,db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
     confirmed = db.Column(db.Boolean, default=False)
+    name = db.Column(db.String(64))
+    location = db.Column(db.String(64))
+    about_me = db.Column(db.Text())
+    member_since = db.Column(db.DateTime(), default=datetime.utcnow)
+    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+    avatar_hash = db.Column(db.String(32))
+
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         if self.role is None:
             if self.email == current_app.config['FLASKY_ADMIN']:
                 self.role = Role.query.filter_by(permissions=0xff).first() # role返回Role模型对象，而非其键值，也就是说可以采用 u.role.id 或 u.role.name等方式访问其具体的列值
-            if self.role is None and self.email == current_app.config['FLASKY_ADMIN_Assistant']:
-                self.role = Role.query.filter_by(permissions=0x0f).first()
+            # if (self.role is None and self.email == current_app.config['Moderator']):
+            #     self.role = Role.query.filter_by(permissions=0x0f).first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
+        if self.email is not None and self.avatar_hash is None:
+            self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
+            
 
     @property
     def password(self): # 把方法变成了属性
@@ -125,7 +137,9 @@ class User(UserMixin,db.Model):
         if self.query.filter_by(email=new_email).first() is not None:
             return False
         self.email = new_email
+        self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
         db.session.add(self)
+        # db.session.commit()
         return True
 
     def can(self, permissions):
@@ -133,6 +147,18 @@ class User(UserMixin,db.Model):
 
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
+
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        db.session.add(self)
+
+    def gravatar(self, size=80): # 头像引用
+        if request.is_secure:
+            url = 'https://s.gravatar.com/avatar'
+        else:
+            url = 'http://www.gravatar.com/avatar'
+        hash = self.avatar_hash or hashlib.md5(self.email.encode('utf-8')).hexdigest()
+        return '{url}/{hash}?s={size}'.format(url=url, hash=hash, size=size)
 
     def __repr__(self):
         return '<User %r>' % self.username

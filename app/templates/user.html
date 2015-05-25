@@ -1,9 +1,33 @@
 {%extends "base.html"%}
 
-{% block title %}My_Flasky{% endblock title%}
+{% block title %}{{user.username}} - 牛斯狗评论{% endblock title%}
 
 {%block page_content%}
 <div class="page-header">
-    <h1>Hello,{{name}}!</h1>
+    <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=200) }}" />
+    <div class="profile-header">
+    <h1>{{ user.username }}</h1>
+    {% if user.name or user.location %}
+    <p>
+        {% if user.name %}<b>{{ user.name }}</b>{% endif %}
+        {% if user.location %}
+            来自 <a href="http://map.baidu.com/?q={{ user.location }}">{{ user.location }}</a>
+        {% endif %}
+    </p>
+    {% endif %}
+    {% if current_user.is_administrator() %}
+    <p>给管理员发邮件：<a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+    {% endif %}
+    {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+    <p>注册于 {{ moment(user.member_since).format('L') }}. 上次登录在 {{ moment(user.last_seen).fromNow() }}.</p>
+    <p>
+        {% if user == current_user %} <!-- 添加一个编辑按钮 -->
+        <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">编辑个人信息</a> <!-- 请求当前所在的蓝本 -->
+        {% endif %}
+        {% if current_user.is_administrator() %}
+        <a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}">编辑个人信息 [管理员]</a>
+        {% endif %}
+    </p>
+    </div>
 </div>
 {%endblock page_content%}

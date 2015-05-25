@@ -18,7 +18,7 @@ class Config:
     FLASKY_MAIL_SUBJECT_PREFIX = '[牛斯狗评论]'
     FLASKY_MAIL_SENDER = '牛斯狗评论管理员<test.flasky@gmail.com>'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') # test_flask@sina.com
-    FLASKY_ADMIN_Assistant = os.environ.get('FLASKY_ADMIN_Assistant') #
+    Moderator = os.environ.get('Moderator') #
     
 
 

@@ -44,3 +44,8 @@ class PostForm(Form):
     # body = TextAreaField("有什么新鲜事抑或想到点什么，写下来呗！", validators=[Required()])
     body = PageDownField("有什么新鲜事 或者 想到点什么，写下来呗！", validators=[Required()])
     submit = SubmitField('发布')
+
+class CommentForm(Form):
+    body = StringField('发表评论', validators=[Required()])
+    submit = SubmitField('发布')
+

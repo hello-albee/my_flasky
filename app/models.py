@@ -80,6 +80,7 @@ class User(UserMixin,db.Model):
                                 backref=db.backref('followed', lazy='joined'),
                                 lazy='dynamic',
                                 cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
     
     #虚拟数据
     # @staticmethod
@@ -118,8 +119,8 @@ class User(UserMixin,db.Model):
         if self.role is None:
             if self.email == current_app.config['FLASKY_ADMIN']:
                 self.role = Role.query.filter_by(permissions=0xff).first() # role返回Role模型对象，而非其键值，也就是说可以采用 u.role.id 或 u.role.name等方式访问其具体的列值
-            # if (self.role is None and self.email == current_app.config['Moderator']):
-            #     self.role = Role.query.filter_by(permissions=0x0f).first()
+            if (self.role is None and self.email == current_app.config['MODERATOR']):
+                self.role = Role.query.filter_by(permissions=0x0f).first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
         if self.email is not None and self.avatar_hash is None:
@@ -259,6 +260,7 @@ class Post(db.Model):
     body_html = db.Column(db.Text) # html存储
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    comments = db.relationship('Comment', backref='post', lazy='dynamic')
 
     # 虚拟数据
     # @staticmethod
@@ -286,3 +288,23 @@ class Post(db.Model):
             tags=allowed_tags, strip=True))# 三层嵌套实现markdown到html的转换
 
 db.event.listen(Post.body, 'set', Post.on_changed_body)
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    disabled = db.Column(db.Boolean)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
+                        'strong']
+        target.body_html = bleach.linkify(bleach.clean(
+            markdown(value, output_format='html'),
+            tags=allowed_tags, strip=True))
+
+db.event.listen(Comment.body, 'set', Comment.on_changed_body)

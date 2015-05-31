@@ -19,6 +19,8 @@ class Config:
     FLASKY_MAIL_SENDER = '牛斯狗评论管理员<test.flasky@gmail.com>'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN') # test_flask@sina.com
     Moderator = os.environ.get('Moderator') #
+    FLASKY_POSTS_PER_PAGE=25 # 每页显示的记录数
+    FLASKY_FOLLOWERS_PER_PAGE=20
     
 
 

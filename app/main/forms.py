@@ -2,6 +2,7 @@ from flask.ext.wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField
 from wtforms.validators import Required, Length, Email, Regexp
 from wtforms import ValidationError
+from flask.ext.pagedown.fields import PageDownField
 from ..models import Role, User
 
 
@@ -37,3 +38,9 @@ class EditProfileAdminForm(Form):
     def validate_username(self, field):
         if field.data != self.user.username and User.query.filter_by(username=field.data).first():
             raise ValidationError('这个用户名已经被使用了 (▔﹏▔)')
+
+
+class PostForm(Form):
+    # body = TextAreaField("有什么新鲜事抑或想到点什么，写下来呗！", validators=[Required()])
+    body = PageDownField("有什么新鲜事 或者 想到点什么，写下来呗！", validators=[Required()])
+    submit = SubmitField('发布')
